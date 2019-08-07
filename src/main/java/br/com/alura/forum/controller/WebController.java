@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +42,7 @@ public class WebController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<TopicoDto> salvar(@RequestBody TopicoForm form, UriComponentsBuilder uriBuilder) { //este metodo retorna o status da resposta
+	public ResponseEntity<TopicoDto> salvar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) { //este metodo retorna o status da resposta
 		Topico topico = form.converterParaTopico(cursoRepository);
 		topicoRepository.save(topico);
 		URI uri = uriBuilder //estamos recebendo no parametro a uri da resposta
