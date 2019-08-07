@@ -3,20 +3,25 @@ package br.com.alura.forum.controller;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import br.com.alura.forum.dto.DetalhesTopicoDto;
 import br.com.alura.forum.dto.TopicoDto;
+import br.com.alura.forum.form.AtualizacaoTopicoForm;
 import br.com.alura.forum.form.TopicoForm;
 import br.com.alura.forum.model.Topico;
 import br.com.alura.forum.repository.CursoRepository;
@@ -42,6 +47,7 @@ public class WebController {
 	}
 	
 	@PostMapping
+	@Transactional
 	public ResponseEntity<TopicoDto> salvar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) { //este metodo retorna o status da resposta
 		Topico topico = form.converterParaTopico(cursoRepository);
 		topicoRepository.save(topico);
@@ -52,4 +58,40 @@ public class WebController {
 				.created(uri) //a resposta 201 necessita da uri do recurso
 				.body(new TopicoDto(topico)); //a resposta 201 necessita de um corpo, por isso enviamos nosso objetoDto
 	}
+	
+	@GetMapping("topicos/{id}")
+	public ResponseEntity<DetalhesTopicoDto> detalhar(@PathVariable(name = "id") Long id){
+		Optional<Topico> topico = topicoRepository.findById(id);
+		if(topico.isPresent()) {
+			DetalhesTopicoDto detalhes = new DetalhesTopicoDto(topico.get()); 
+			return ResponseEntity.ok().body(detalhes);
+		}else {
+			return ResponseEntity.badRequest().build(); //se nao houver recurso encaminha status de BAD_REQUEST
+		}
+	}
+	
+	@PutMapping("topicos/{id}")
+	@Transactional //comita a transacao ao final do metodo
+	public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoTopicoForm form){
+		//o param @requestBody configura o obj do corpo da resposta com a classe passada (devem ter os mesmos nomes de attrb)
+		Optional<Topico> topico = topicoRepository.findById(id);
+		if(topico.isPresent()) {
+			Topico t = form.atualizar(id, topicoRepository);
+			return ResponseEntity.ok().body(new TopicoDto(t));
+		}
+		return ResponseEntity.badRequest().build();
+	}
+	
+	@DeleteMapping("/topicos/{id}")
+	public ResponseEntity<Topico> remover(@PathVariable Long id){
+		Optional<Topico> topicoOpt = topicoRepository.findById(id);
+		if(topicoOpt.isPresent()) {
+			topicoRepository.delete(topicoOpt.get());
+			return ResponseEntity.ok().build();
+		}else
+		return ResponseEntity.badRequest().build();
+		
+	}
+	
+	
 }
