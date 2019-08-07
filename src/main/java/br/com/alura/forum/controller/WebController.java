@@ -9,6 +9,8 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -40,6 +42,7 @@ public class WebController {
 	private CursoRepository cursoRepository;
 
 	@GetMapping
+	@Cacheable(value = "listaTopicos")
 	public Page<TopicoDto> listar(String nomeCurso, 
 			@PageableDefault(sort="id", direction = Direction.DESC, page=0, size=10) Pageable paginacao){
 		//realiza paginacao com os param na url, com valores default de ordenacao por id descendente
@@ -56,6 +59,7 @@ public class WebController {
 	
 	@PostMapping
 	@Transactional
+	@CacheEvict(cacheNames = "listaTopicos", allEntries = true) //anotacao para atualiziar o cache
 	public ResponseEntity<TopicoDto> salvar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) { //este metodo retorna o status da resposta
 		Topico topico = form.converterParaTopico(cursoRepository);
 		topicoRepository.save(topico);
@@ -80,6 +84,7 @@ public class WebController {
 	
 	@PutMapping("topicos/{id}")
 	@Transactional //comita a transacao ao final do metodo
+	@CacheEvict(cacheNames = "listaTopicos", allEntries = true)
 	public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoTopicoForm form){
 		//o param @requestBody configura o obj do corpo da resposta com a classe passada (devem ter os mesmos nomes de attrb)
 		Optional<Topico> topico = topicoRepository.findById(id);
@@ -91,6 +96,7 @@ public class WebController {
 	}
 	
 	@DeleteMapping("/topicos/{id}")
+	@CacheEvict(cacheNames = "listaTopicos", allEntries = true)
 	public ResponseEntity<Topico> remover(@PathVariable Long id){
 		Optional<Topico> topicoOpt = topicoRepository.findById(id);
 		if(topicoOpt.isPresent()) {
