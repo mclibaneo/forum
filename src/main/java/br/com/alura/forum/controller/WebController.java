@@ -9,6 +9,10 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,15 +40,19 @@ public class WebController {
 	private CursoRepository cursoRepository;
 
 	@GetMapping
-	public List<TopicoDto> listar(String nomeCurso){
-		List<Topico> topicos = new ArrayList<Topico>();
+	public Page<TopicoDto> listar(String nomeCurso, 
+			@PageableDefault(sort="id", direction = Direction.DESC, page=0, size=10) Pageable paginacao){
+		//realiza paginacao com os param na url, com valores default de ordenacao por id descendente
+		Page<Topico> topicos; 
 		if(nomeCurso == null) {
-			topicos = topicoRepository.findAll();
+			topicos = topicoRepository.findAll(paginacao);
 		}else {
-			topicos = topicoRepository.buscarPorNomeCurso(nomeCurso);
+			topicos = topicoRepository.buscarPorNomeCurso(nomeCurso, paginacao);
 		}
 		return TopicoDto.converterParaArray(topicos);
 	}
+	
+	
 	
 	@PostMapping
 	@Transactional
