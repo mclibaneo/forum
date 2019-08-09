@@ -5,10 +5,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class TokenApp {
 	
-	public String issuer;
-	public String subject;
+	private String issuer;
+	private String subject;
 	private Date dateCreation;	
-	public SignatureAlgorithm signatureAlgorithm;	
+	private SignatureAlgorithm signatureAlgorithm;	
 	private String expiration;
 	private String secret;	
 	
@@ -46,9 +46,7 @@ public class TokenApp {
 		this.signatureAlgorithm = signatureAlgorithm;
 	}
 	
-	public Date dateExpiration() {
-		System.out.println(dateCreation.getTime());
-		System.out.println(expiration);
+	public Date dateExpiration() {		
 		return new Date(this.dateCreation.getTime() - Long.parseLong(this.getExpiration()));
 	}
 	public Date getDateCreation() {
