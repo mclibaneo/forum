@@ -47,13 +47,10 @@ public class TokenApp {
 	}
 	
 	public Date dateExpiration() {		
-		return new Date(this.dateCreation.getTime() - Long.parseLong(this.getExpiration()));
+		Long timeExpiration = Long.parseLong(this.expiration);		
+		return new Date(this.dateCreation.getTime() + timeExpiration);
 	}
 	public Date getDateCreation() {
 		return dateCreation;
-	}
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
-	}
-	
+	}	
 }

@@ -12,8 +12,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import br.com.alura.forum.filter.AutenticacaoViaTokenFilter;
+import br.com.alura.forum.repository.UsuarioRepository;
 import br.com.alura.forum.service.AutenticacaoService;
+import br.com.alura.forum.service.TokenService;
 
 @EnableWebSecurity
 @Configuration
@@ -21,7 +25,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	
 	@Autowired
-	private AutenticacaoService autenticacaoService;
+	private AutenticacaoService autenticacaoService; //dispara processo de autenticacao usuario e senha
+	@Autowired
+	private TokenService tokenService;
+	@Autowired
+	private UsuarioRepository repository;
 	
 	//configura servicos de seguranca de autenticacao
 	@Override
@@ -39,10 +47,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll() 
 				.antMatchers(HttpMethod.POST, "/auth").permitAll()
 				.anyRequest().authenticated() //as requiscoes que nao sao GET so com autenticacao
+				.and().csrf().disable() //desabilita CROSS SITE REQUEST FORGERY
 				//.and().formLogin(); //abre um formulario padrao (nao habilitamos, pois estamos utilziando token)
-				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //informa que a sessao e do tipo stateless
-				.and().csrf().disable(); //desabilita CROSS SITE REQUEST FORGERY
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //informa que a sessao e do tipo stateless
+				.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService, repository), UsernamePasswordAuthenticationFilter.class); //eh p rodar o authfilter antes do userfilter
 				//qnd n usamos sessao precisamos informar ao spring o controller de autenticacao
+				
 	}
 	//configura servicos de seguranca de arquivos estaticos (js, css, imagens, etc.)
 	@Override

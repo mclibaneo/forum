@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.alura.forum.model.TokenApp;
 import br.com.alura.forum.model.Usuario;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 @Service
@@ -28,7 +29,24 @@ public class TokenService {
 						.setIssuedAt(tokenApp.getDateCreation()) //add data de criacao do token
 						.setExpiration(tokenApp.dateExpiration()) //add data de expiracao do token
 						.signWith(tokenApp.getSignatureAlgorithm(), tokenApp.getSecret()) //add asinatura do token com criptografia
-						.compact(); //gera a string
+						.compact(); //gera o token como uma string
+	}
+
+	public boolean isTokenValido(String token) {
+		try {
+			Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token); //devolve o token valido ou joga exception
+			return true;
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;			
+		}
+	}
+	/*
+	 * Parse eh utilizado para extrair informacoes de token string
+	 * */
+	public Long getIdUsuario(String token) {		
+		Claims claims = Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token).getBody();
+		return Long.parseLong(claims.getSubject());
 	}
 
 	
