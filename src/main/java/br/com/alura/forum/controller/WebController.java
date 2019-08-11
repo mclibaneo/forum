@@ -1,8 +1,6 @@
 package br.com.alura.forum.controller;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -22,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -34,6 +33,7 @@ import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
 
 @RestController
+@RequestMapping("/topicos")
 public class WebController {
 
 	@Autowired
@@ -71,7 +71,7 @@ public class WebController {
 				.body(new TopicoDto(topico)); //a resposta 201 necessita de um corpo, por isso enviamos nosso objetoDto
 	}
 	
-	@GetMapping("topicos/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<DetalhesTopicoDto> detalhar(@PathVariable(name = "id") Long id){
 		Optional<Topico> topico = topicoRepository.findById(id);
 		if(topico.isPresent()) {
@@ -82,7 +82,7 @@ public class WebController {
 		}
 	}
 	
-	@PutMapping("topicos/{id}")
+	@PutMapping("/{id}")
 	@Transactional //comita a transacao ao final do metodo
 	@CacheEvict(cacheNames = "listaTopicos", allEntries = true)
 	public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoTopicoForm form){
@@ -95,7 +95,7 @@ public class WebController {
 		return ResponseEntity.badRequest().build();
 	}
 	
-	@DeleteMapping("/topicos/{id}")
+	@DeleteMapping("/{id}")
 	@CacheEvict(cacheNames = "listaTopicos", allEntries = true)
 	public ResponseEntity<Topico> remover(@PathVariable Long id){
 		Optional<Topico> topicoOpt = topicoRepository.findById(id);

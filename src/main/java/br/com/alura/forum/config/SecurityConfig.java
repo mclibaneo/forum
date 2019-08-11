@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.antMatchers(HttpMethod.GET, "/topicos").permitAll() //autoriza apenas requisicoes do tipo GET
 				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
-				.antMatchers(HttpMethod.GET, "/actuator/**").permitAll() //para permitir monitoramento da app 
+				.antMatchers(HttpMethod.GET, "/actuator/**").permitAll() //para permitir monitoramento da app				
 				.antMatchers(HttpMethod.POST, "/auth").permitAll()
 				.anyRequest().authenticated() //as requiscoes que nao sao GET so com autenticacao
 				.and().csrf().disable() //desabilita CROSS SITE REQUEST FORGERY
@@ -55,10 +55,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				//qnd n usamos sessao precisamos informar ao spring o controller de autenticacao
 				
 	}
-	//configura servicos de seguranca de arquivos estaticos (js, css, imagens, etc.)
+	//configura servicos de seguranca de arquivos estaticos (js, css, imagens, DOCUMENTACAO, etc.)
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-	
+		//libera os endpoint necessarios para documentacao
+		web.ignoring().antMatchers("/**.html"
+									,"/v2/api-docs"
+									,"/webjars/**"
+									,"/configuration/**"
+									,"/swagger-resources/**");	
 	}
 	
 	@Override
