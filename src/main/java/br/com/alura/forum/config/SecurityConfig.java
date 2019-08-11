@@ -44,7 +44,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			.authorizeRequests()
 				.antMatchers(HttpMethod.GET, "/topicos").permitAll() //autoriza apenas requisicoes do tipo GET
-				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll() 
+				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
+				.antMatchers(HttpMethod.GET, "/actuator/**").permitAll() //para permitir monitoramento da app 
 				.antMatchers(HttpMethod.POST, "/auth").permitAll()
 				.anyRequest().authenticated() //as requiscoes que nao sao GET so com autenticacao
 				.and().csrf().disable() //desabilita CROSS SITE REQUEST FORGERY
